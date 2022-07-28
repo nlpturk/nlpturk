@@ -1,0 +1,6 @@
+recursive-include nlpturk *
+include LICENSE
+include README.md
+recursive-exclude */__pycache__ *
+recursive-exclude */assets *
+recursive-exclude */models *

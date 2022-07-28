@@ -1,0 +1,30 @@
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nlpturk"
+version = "0.1.0"
+description = "Turkish NLP library"
+readme = "README.md"
+authors = [{ name = "Bedii A. Aydoğan", email = "nlpturk.ai@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["nlp", "turkish"]
+dependencies = [
+    "scikit-learn >= 1.1.0, < 1.2",
+    "spacy-transformers >= 1.1.0, < 1.2",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+build = ["build", "twine"]
+dev = ["pytest"]
+
+[project.urls]
+Homepage = "https://github.com/nlpturk/nlpturk"
+Repository = "https://github.com/nlpturk/nlpturk"
