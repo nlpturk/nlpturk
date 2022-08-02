@@ -34,7 +34,7 @@ def capitalize(text: str) -> str:
 def capwords(text: str) -> str:
     """Capitalize each word in string, fixes Turkish "İ" and "ı" problems.
     """
-    return ' '.join(capitalize(word) for word in text.split())
+    return ' '.join([capitalize(word) for word in text.split()])
 
 
 def islower(text: str) -> str:
@@ -47,12 +47,6 @@ def isupper(text: str) -> str:
     """Check if string contains all uppercase characters 
     """
     return text == upper(text)
-
-
-def istitle(text: str) -> str:
-    """Check if each word in string starts with an uppercase letter 
-    """
-    return all(word == capitalize(word) for word in text.split())
 
 
 def batch_dataset(data: Iterable[Any], batch_size: int = 1) -> Iterator[Iterable[Any]]:
@@ -106,7 +100,7 @@ def fetch_ud_treebanks(output_path: Union[str, Path]) -> None:
     """Fetch Universal Dependencies treebanks.
 
     Args:
-        output_path (Union[str, Path]): Output path to save fetched UD treebanks.
+        output_path (Union[str, Path]): Output directory.
     """
     base_url = 'https://github.com/UniversalDependencies/'
     repos = {
@@ -157,14 +151,14 @@ def merge_ud_treebanks(
 
     Args:
         data_path (Union[str, Path]): Path to the UD treebanks.
-        output_path (Union[str, Path]): Output path to save merged files. Merged dataset 
-            would be splitted into train, dev, test sets if path is a directory.
-        blacklist (Iterable[str], optional): Files and directories to be excluded. Defaults to None.
+        output_path (Union[str, Path]): Output file or directory. Merged dataset would be 
+            splitted into train, dev, test sets if path is a directory.
+        blacklist (Iterable[str], optional): Files or directories to be excluded. Defaults to None.
     """
     data = []
     for filepath in glob.glob(os.path.join(data_path, '**', '*.conllu'), recursive=True):
         if isinstance(blacklist, (list, tuple, set)) and \
-                not all(n not in filepath.lstrip(str(data_path)) for n in blacklist):
+                not all(os.path.sep + n not in filepath for n in blacklist):
             continue
         for lines in FS.read(filepath):
             ext, filename, _ = FS.split_path(filepath)

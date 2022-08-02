@@ -15,12 +15,12 @@ from ..utils import batch_dataset, split_dataset, lower, isupper, capitalize
 
 
 def _parse_conllu(filepath: Union[str, Path], min_tokens: int = 5) -> List[Dict[str, List[str]]]:
-    """Read conllu file, merge subtokens and normalize lemmas. 
+    """Reads conllu files, merges subtokens and normalizes lemmas. 
     Lemma cases are inconsistent among treebanks.
 
     Args:
         filepath (Union[str, Path]): Conllu file path.
-        min_tokens (int, optional): Minimum number of tokens the sentence should have.
+        min_tokens (int, optional): Minimum number of tokens the sentence must have. Defaults to 5.
 
     Returns:
         List[List[str]]: List of parsed sentences.
@@ -64,7 +64,7 @@ def _parse_conllu(filepath: Union[str, Path], min_tokens: int = 5) -> List[Dict[
 
 
 def _doc2bin(docs: List[Doc], filepath: Union[str, Path]) -> None:
-    """Convert data to spaCy binary and write to disk.
+    """Convert data to spacy binary and write to disk.
 
     Args:
         docs (List[Doc]): List of spacy Doc objects.
@@ -76,14 +76,6 @@ def _doc2bin(docs: List[Doc], filepath: Union[str, Path]) -> None:
 
 
 def _process_ud(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Dict[str, int]]:
-    """Extract tags from UD sentences and convert spaCy Doc objects.
-
-    Args:
-        sents (List[List[Dict[str, List[str]]]]): List of UD sentence batches.
-
-    Returns:
-        Tuple[List[Doc], Dict[str, int]]: List of spaCy Doc objects and data statistics.
-    """
     nlp = spacy.blank('tr')
     nlp.tokenizer = Tokenizer(nlp.vocab)
 
@@ -141,14 +133,6 @@ def _process_ud(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Dic
 
 
 def _process_sbd(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Dict[str, int]]:
-    """Extract sentence boundaries and convert spaCy Doc objects.
-
-    Args:
-        sents (List[List[Dict[str, List[str]]]]): List of sentence batches.
-
-    Returns:
-        Tuple[List[Doc], Dict[str, int]]: List of spaCy Doc objects and data statistics.
-    """
     nlp = spacy.blank('tr')
     nlp.tokenizer = Tokenizer(nlp.vocab)
 
@@ -161,8 +145,6 @@ def _process_sbd(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Di
                 # remove EOS punctutation marks
                 while tokens and not re.search(r'[^\W_]', tokens[-1]):
                     tokens.pop()
-            if not tokens:
-                continue
             if random.choice([True, False]):
                 # lower first token of sentence
                 tokens[0] = lower(tokens[0])
@@ -198,12 +180,6 @@ def _process_sbd(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Di
 
 
 def convert(data_path: Union[str, Path], output_path: Union[str, Path]) -> None:
-    """Read raw data contents, extract tags and convert to spaCy binary files for model training.
-
-    Args:
-        data_path (Union[str, Path]): Raw data files directory.
-        output_path (Union[str, Path]): Output path to save binary files. 
-    """
     nlp = spacy.blank('tr')
     nlp.tokenizer = Tokenizer(nlp.vocab)
     msg = Printer()
