@@ -24,7 +24,7 @@ class FS:
 
     @staticmethod
     def read_json(filepath) -> Union[Dict[str, Any], List[Any]]:
-        """Read json files.
+        """Read json file.
 
         Args:
             filepath (_type_): File path.
@@ -42,7 +42,7 @@ class FS:
         filepath: Union[str, Path],
         append: bool = False
     ) -> None:
-        """Dump json files.
+        """Dump json file.
 
         Args:
             content (Union[Dict[Any, Any], List[Any]]): Content to be dumped.
@@ -73,7 +73,7 @@ class FS:
 
     @staticmethod
     def read_jsonl(filepath) -> List[Union[Dict[str, Any], List[Any]]]:
-        """Read jsonlines files.
+        """Read jsonlines file.
 
         Args:
             filepath (_type_): File path.
@@ -93,7 +93,7 @@ class FS:
         filepath: Union[str, Path],
         append: bool = False
     ) -> None:
-        """Dump jsonlines files.
+        """Dump jsonlines file.
 
         Args:
             content (List[Union[Dict[Any, Any], List[Any]]]): Content to be dumped.
@@ -117,7 +117,7 @@ class FS:
 
     @staticmethod
     def read_conll(filepath) -> Iterator[List[Union[str, List[str]]]]:
-        """Read conll files.
+        """Read conll file.
 
         Args:
             filepath (_type_): File path.
@@ -136,7 +136,7 @@ class FS:
 
     @staticmethod
     def read(filepath: Path) -> Union[str, Dict[str, Any], List[Any]]:
-        """Read files by file extension.
+        """Read content from file.
 
         Args:
             filepath (Path): File path.
@@ -165,7 +165,7 @@ class FS:
         filepath: Union[str, Path],
         append: bool = False
     ) -> None:
-        """Write contents to files by file extension.
+        """Write content to file.
 
         Args:
             content (Union[str, Dict[Any, Any], List[Any]]): File content to be written.
