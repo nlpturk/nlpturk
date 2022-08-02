@@ -157,3 +157,5 @@ __pypackages__/
 # directories
 **/assets/
 **/models/
+**/notebooks/
+**/tmp/
