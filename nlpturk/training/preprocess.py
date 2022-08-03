@@ -197,12 +197,18 @@ def _process_sbd(sents: List[List[Dict[str, List[str]]]]) -> Tuple[List[Doc], Di
     return docs, stats
 
 
-def convert(data_path: Union[str, Path], output_path: Union[str, Path]) -> None:
+def convert(
+    data_path: Union[str, Path],
+    output_path: Union[str, Path],
+    split_ratios: Union[List[float], Tuple[float, ...]] = (0.8, 0.1, 0.1)
+) -> None:
     """Read raw data contents, extract tags and convert to spaCy binary files for model training.
 
     Args:
         data_path (Union[str, Path]): Raw data files directory.
-        output_path (Union[str, Path]): Output path to save binary files. 
+        output_path (Union[str, Path]): Output path to save binary files.
+        split_ratios (Union[List[float], Tuple[float, ...]]): Train, dev, test split ratios 
+            in the [0, 1] range. Either or both of the dev and test split ratios can be set to 0.0. 
     """
     nlp = spacy.blank('tr')
     nlp.tokenizer = Tokenizer(nlp.vocab)
@@ -224,12 +230,13 @@ def convert(data_path: Union[str, Path], output_path: Union[str, Path]) -> None:
     # group data by 10 sentences
     sents = list(batch_dataset(sents, batch_size=10))
     # split data into train, dev, test sets.
-    train, dev, test = split_dataset(sents, (0.8, 0.1, 0.1))
+    train, dev, test = split_dataset(sents, split_ratios=split_ratios)
 
     # convert data to binary and write to disk
     for filename, sents in {'train': train, 'dev': dev, 'test': test}.items():
-        docs, stats = _process_sbd(sents) if is_sbd_dataset else _process_ud(sents)
-        _doc2bin(docs, os.path.join(output_path, filename + '.spacy'))
-        # print stats
-        header = capitalize(filename) + ':'
-        msg.info(f'{header} {stats["sents"]} sentences, {stats["tokens"]} tokens.')
+        if sents:
+            docs, stats = _process_sbd(sents) if is_sbd_dataset else _process_ud(sents)
+            _doc2bin(docs, os.path.join(output_path, filename + '.spacy'))
+            # print stats
+            header = capitalize(filename) + ':'
+            msg.info(f'{header} {stats["sents"]} sentences, {stats["tokens"]} tokens.')

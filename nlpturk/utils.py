@@ -75,31 +75,44 @@ def batch_dataset(data: Iterable[Any], batch_size: int = 1) -> Iterator[Iterable
 def split_dataset(
     data: List[Any],
     split_ratios: Union[List[float], Tuple[float, ...]]
-) -> Tuple[List[Any], List[Any], List[Any]]:
+) -> Tuple[List[Any], Union[List[Any], None], Union[List[Any], None]]:
     """Split dataset into train, dev, test sets.
 
     Args:
         data (List[Any]): Dataset to be splitted.
-        split_ratios (Iterable[float]): Train, dev, test split ratios.
+        split_ratios (Union[List[float], Tuple[float, ...]]): Train, dev, test split ratios 
+            in the [0, 1] range. Either or both of the dev and test split ratios can be set to 0.0.
 
     Returns:
-        Tuple[List[Any], List[Any], List[Any]]: Splitted train, dev, test sets.
+        Tuple[List[Any], Union[List[Any], None], Union[List[Any], None]]: Splitted train, dev, test sets.
     """
     if not data or not isinstance(data, list):
         raise ValueError('Data must be list of values.')
 
     if not isinstance(split_ratios, (tuple, list)) or len(split_ratios) != 3 or \
-            not all([isinstance(v, float) and v > 0. for v in split_ratios]) or \
+            not all([isinstance(v, float) and v >= 0. for v in split_ratios]) or \
             sum(split_ratios) != 1.0:
         raise ValueError(
-            'Split ratios must be float in the (0, 1) range and the sum must be 1.0.')
+            'Train, dev, test split ratios must be float in the [0, 1] range and the sum must be 1.0.')
 
-    _, val_split, test_split = split_ratios
-    val_split = val_split/(1 - test_split)
-    train, test = train_test_split(data, test_size=test_split, random_state=42)
-    train, val = train_test_split(train, test_size=val_split, random_state=42)
+    train_split, dev_split, test_split = split_ratios
+    train, dev, test = None, None, None
 
-    return train, val, test
+    if not train_split:
+        raise ValueError('Train split must be float in the (0, 1] range.')
+    elif not dev_split and not test_split:
+        # do not split, return raw data
+        return data, None, None
+    elif not dev_split:
+        train, test = train_test_split(data, test_size=test_split, random_state=42)
+    elif not test_split:
+        train, dev = train_test_split(data, test_size=dev_split, random_state=42)
+    else:
+        dev_split = dev_split/(1 - test_split)
+        train, test = train_test_split(data, test_size=test_split, random_state=42)
+        train, dev = train_test_split(train, test_size=dev_split, random_state=42)
+
+    return train, dev, test
 
 
 def fetch_ud_treebanks(output_path: Union[str, Path]) -> None:
