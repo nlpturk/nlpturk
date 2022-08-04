@@ -31,13 +31,13 @@ def test_split_dataset():
     # train and test sets
     train, dev, test = split_dataset(data, split_ratios=[0.8, 0., 0.2])
     assert len(train) == 8
-    assert dev == None
+    assert not dev
     assert len(test) == 2
-    # only train set
-    train, dev, test = split_dataset(data, split_ratios=[1., 0., 0.])
-    assert len(train) == 10
-    assert dev == None
-    assert test == None
+    # only test set
+    train, dev, test = split_dataset(data, split_ratios=[0., 0., 1.])
+    assert not train
+    assert not dev
+    assert len(test) == 10
     # train, dev, test sets
     train, dev, test = split_dataset(data, split_ratios=[0.6, 0.2, 0.2])
     assert len(train) == 6
@@ -51,12 +51,9 @@ def test_split_dataset():
     # raises ValueError, if split ratios are not float in the [0, 1] range
     # and the sum is not 1.0.
     with pytest.raises(ValueError):
-        split_dataset(data, split_ratios=[0.7, 0.2, 0.2])
-    with pytest.raises(ValueError):
         split_dataset(data, split_ratios=[None, 0.2, 0.2])
-    # raises ValueError, if train split is not float in the (0, 1] range
     with pytest.raises(ValueError):
-        split_dataset(data, split_ratios=[0., 0.5, 0.5])
+        split_dataset(data, split_ratios=[0.7, 0.2, 0.2])
     # raises ValueError, if split_ratios is not type of list or tuple
     with pytest.raises(ValueError):
         split_dataset(data, split_ratios={0.6, 0.2, 0.2})

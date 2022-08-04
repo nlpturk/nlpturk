@@ -81,7 +81,7 @@ def split_dataset(
     Args:
         data (List[Any]): Dataset to be splitted.
         split_ratios (Union[List[float], Tuple[float, ...]]): Train, dev, test split ratios 
-            in the [0, 1] range. Either or both of the dev and test split ratios can be set to 0.0.
+            in the [0, 1] range. Either two or one of the ratios can be set to 0.0.
 
     Returns:
         Tuple[List[Any], Union[List[Any], None], Union[List[Any], None]]: Splitted train, dev, test sets.
@@ -95,24 +95,33 @@ def split_dataset(
         raise ValueError(
             'Train, dev, test split ratios must be float in the [0, 1] range and the sum must be 1.0.')
 
-    train_split, dev_split, test_split = split_ratios
-    train, dev, test = None, None, None
+    splits = {k: split_ratios[i] for i, k in enumerate(['train', 'dev', 'test'])}
+    nr_splits = len([v for v in splits.values() if v])
 
-    if not train_split:
-        raise ValueError('Train split must be float in the (0, 1] range.')
-    elif not dev_split and not test_split:
-        # do not split, return raw data
-        return data, None, None
-    elif not dev_split:
-        train, test = train_test_split(data, test_size=test_split, random_state=42)
-    elif not test_split:
-        train, dev = train_test_split(data, test_size=dev_split, random_state=42)
+    if nr_splits == 3:
+        splits['dev'] = splits['dev']/(1 - splits['test'])
+        train, test = train_test_split(data, test_size=splits['test'], random_state=42)
+        train, dev = train_test_split(train, test_size=splits['dev'], random_state=42)
+        return train, dev, test
+    elif nr_splits == 2:
+        if not splits['train']:
+            dev, test = train_test_split(data, test_size=splits['test'],
+                                         random_state=42)
+            return None, dev, test
+        elif not splits['dev']:
+            train, test = train_test_split(data, test_size=splits['test'],
+                                           random_state=42)
+            return train, None, test
+        else:
+            train, dev = train_test_split(data, test_size=splits['dev'],
+                                          random_state=42)
+            return train, dev, None
     else:
-        dev_split = dev_split/(1 - test_split)
-        train, test = train_test_split(data, test_size=test_split, random_state=42)
-        train, dev = train_test_split(train, test_size=dev_split, random_state=42)
-
-    return train, dev, test
+        return (
+            data if splits['train'] else None,
+            data if splits['dev'] else None,
+            data if splits['test'] else None
+        )
 
 
 def fetch_ud_treebanks(output_path: Union[str, Path]) -> None:
