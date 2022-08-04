@@ -75,7 +75,7 @@ def batch_dataset(data: Iterable[Any], batch_size: int = 1) -> Iterator[Iterable
 def split_dataset(
     data: List[Any],
     split_ratios: Union[List[float], Tuple[float, ...]]
-) -> Tuple[List[Any], Union[List[Any], None], Union[List[Any], None]]:
+) -> Tuple[Union[List[Any], None], Union[List[Any], None], Union[List[Any], None]]:
     """Split dataset into train, dev, test sets.
 
     Args:
@@ -84,7 +84,8 @@ def split_dataset(
             in the [0, 1] range. Either two or one of the ratios can be set to 0.0.
 
     Returns:
-        Tuple[List[Any], Union[List[Any], None], Union[List[Any], None]]: Splitted train, dev, test sets.
+        Tuple[Union[List[Any], None], Union[List[Any], None], Union[List[Any], None]]: 
+            Splitted train, dev, test sets.
     """
     if not data or not isinstance(data, list):
         raise ValueError('Data must be list of values.')
