@@ -2,7 +2,7 @@ import re
 
 import spacy
 from spacy.tokens import Doc
-
+from spacy.language import Language
 from .tld import TLD
 
 
@@ -11,9 +11,10 @@ class Tokenizer:
     on a list of valid top level domains.
     """
 
-    def __init__(self, vocab):
+    def __init__(self, nlp: Language):
         self.nlp = spacy.blank('tr')
-        self.vocab = vocab
+        self.nlp.max_length = nlp.max_length
+        self.vocab = nlp.vocab
 
     def _is_url(self, text: str) -> bool:
         """Checks whether the string is a valid url or not.
