@@ -7,7 +7,7 @@ def test_url_match():
     invalid_urls = ['nlpturk.fake', 'http:nlpturk.net', 'www.nlpturk', 'nlpturk.Com']
 
     nlp = spacy.blank('tr')
-    nlp.tokenizer = Tokenizer(nlp.vocab)
+    nlp.tokenizer = Tokenizer(nlp)
     # valid urls
     for url in valid_urls:
         tokens = [t.text for t in nlp(url)]
