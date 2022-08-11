@@ -159,3 +159,4 @@ __pypackages__/
 **/models/
 **/notebooks/
 **/tmp/
+**/packages/
