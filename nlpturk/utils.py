@@ -134,12 +134,9 @@ def fetch_ud_treebanks(output_path: Union[str, Path]) -> None:
     base_url = 'https://github.com/UniversalDependencies/'
     repos = {
         'atis': 'UD_Turkish-Atis',
-        'boun': 'UD_Turkish-BOUN',
         'framenet': 'UD_Turkish-FrameNet',
-        'imst': 'UD_Turkish-IMST',
         'kenet': 'UD_Turkish-Kenet',
-        'penn': 'UD_Turkish-Penn',
-        'tourism': 'UD_Turkish-Tourism'
+        'penn': 'UD_Turkish-Penn'
     }
 
     for k, v in repos.items():
