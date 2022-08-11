@@ -23,11 +23,11 @@ class FS:
         return ext, filename, parent
 
     @staticmethod
-    def read_json(filepath) -> Union[Dict[str, Any], List[Any]]:
+    def read_json(filepath: Union[str, Path]) -> Union[Dict[str, Any], List[Any]]:
         """Read json file.
 
         Args:
-            filepath (_type_): File path.
+            filepath (Union[str, Path]): File path.
 
         Returns:
             Union[Dict[str, Any], List[Any]]: File content.
@@ -72,11 +72,11 @@ class FS:
                 json.dump(content, f, ensure_ascii=False)
 
     @staticmethod
-    def read_jsonl(filepath) -> List[Union[Dict[str, Any], List[Any]]]:
+    def read_jsonl(filepath: Union[str, Path]) -> List[Union[Dict[str, Any], List[Any]]]:
         """Read jsonlines file.
 
         Args:
-            filepath (_type_): File path.
+            filepath (Union[str, Path]): File path.
 
         Returns:
             Union[Dict[str, Any], List[Any]]: File content.
@@ -116,11 +116,11 @@ class FS:
                 f.truncate(f.tell() - len(os.linesep))
 
     @staticmethod
-    def read_conll(filepath) -> Iterator[List[Union[str, List[str]]]]:
+    def read_conll(filepath: Union[str, Path]) -> Iterator[List[Union[str, List[str]]]]:
         """Read conll file.
 
         Args:
-            filepath (_type_): File path.
+            filepath (Union[str, Path]): File path.
 
         Yields:
             Iterator[List[Union[str, List[str]]]]: Yield conll file content,
@@ -135,11 +135,69 @@ class FS:
             yield lines
 
     @staticmethod
-    def read(filepath: Path) -> Union[str, Dict[str, Any], List[Any]]:
+    def parse_conllu(
+        filepath: Union[str, Path],
+        min_tokens: int = 5
+    ) -> List[Dict[str, List[str]]]:
+        """Read conllu file, merge subtokens and normalize lemmas. 
+        Lemma cases are inconsistent among treebanks.
+
+        Args:
+            filepath (Union[str, Path]): Conllu file path.
+            min_tokens (int, optional): Minimum number of tokens the sentence should have.
+
+        Returns:
+            List[List[str]]: List of parsed sentences.
+        """
+        def lower(text: str) -> str:
+            return text.replace('I', 'ı').replace('İ', 'i').lower()
+
+        def isupper(text: str) -> str:
+            return text == text.replace('i', 'İ').upper()
+
+        def normalize_lemma(token, lemma):
+            i, prefix = 1, ''
+            while i <= len(lemma) and lower(token[:i]) == lower(lemma[:i]):
+                prefix = token[:i]
+                i += 1
+            return prefix + lemma[len(prefix):]
+
+        sents = []
+        for lines in FS.read_conll(filepath):
+            exclude = []
+            for idx, line in enumerate(lines):
+                if isinstance(line, str):
+                    exclude.append(idx)
+                    continue
+                # merge subtokens
+                if '-' in line[0]:
+                    lines[idx+1][1] = line[1]
+                    exclude.extend([idx, idx+2])
+                # normalize lemma
+                lines[idx][2] = normalize_lemma(line[1], line[2])
+            lines = [l for idx, l in enumerate(lines) if idx not in exclude]
+            if len(lines) >= min_tokens:
+                # some sents are all uppercase, lower tokens and lemmas
+                if all(isupper(l[1]) for l in lines):
+                    for idx, line in enumerate(lines):
+                        lines[idx][1] = lower(line[1])
+                        lines[idx][2] = lower(line[2])
+                sent = {k: [] for k in ('words', 'lemmas', 'poses', 'morphs')}
+                for line in lines:
+                    _, word, lemma, pos, _, morph, *_ = line
+                    sent['words'].append(word)
+                    sent['lemmas'].append(lemma)
+                    sent['poses'].append(pos)
+                    sent['morphs'].append(morph)
+                sents.append(sent)
+        return sents
+
+    @staticmethod
+    def read(filepath: Union[str, Path]) -> Union[str, Dict[str, Any], List[Any]]:
         """Read content from file.
 
         Args:
-            filepath (Path): File path.
+            filepath (Union[str, Path]): File path.
 
         Returns:
             Union[str, Dict[str, Any], List[Any]]: File content.
