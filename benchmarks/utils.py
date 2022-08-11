@@ -1,4 +1,5 @@
 import os
+import glob
 from pathlib import Path
 from datetime import datetime
 from typing import Union, List, Dict, Any
@@ -17,84 +18,97 @@ from nlpturk.utils import batch_dataset, lower
 from .zemberek.base import Zemberek
 
 
-def run_benchmarks(filepath: Union[str, Path], output_path: Union[str, Path]) -> None:
+def run_benchmarks(data_path: Union[str, Path], output_path: Union[str, Path]) -> None:
     """Perform benchmarks.
 
     Args:
-        filepath (Union[str, Path]): Path to the benchmark file. If file is in conllu format,
-            benchmarks will be performed for sentence segmentation, lemmatization and POS tagging. 
-            If file contains sentences seperated by newlines, benchmarks will be performed  
-            only for sentence segmentation.
+        data_path (Union[str, Path]): Path to the file or directory of files. Multiple files 
+            will be merged. If files are in conllu format, benchmarks will be performed for 
+            sentence segmentation, lemmatization and POS tagging. If files contains sentences 
+            seperated by newlines, benchmarks will be performed only for sentence segmentation.
         output_path (Union[str, Path]): Output path to save benchmark report.
     """
-    if not os.path.isfile(filepath):
-        raise ValueError(f'Path `{filepath}` does not exist.')
+    if os.path.isfile(data_path):
+        files = [data_path]
+    elif os.path.isdir(data_path):
+        files = glob.glob(os.path.join(data_path, '**', '*.*'), recursive=True)
+    else:
+        raise ValueError(f'Path `{data_path}` does not exist.')
+
+    nlp = spacy.blank('tr')
+    nlp.tokenizer = Tokenizer(nlp)
+
+    # group files by type and merge
+    sents = {'conllu': [], 'sbd': []}
+    for filepath in files:
+        if FS.split_path(filepath)[0] == 'conllu':
+            data = FS.parse_conllu(filepath)
+            sents['conllu'].extend(data)
+            sents['sbd'].extend([{'words': s['words']} for s in data])
+        else:
+            # sentences are seperated by newlines, tokenize sentences
+            data = [{'words': [t.text for t in nlp(s) if t.text.strip()]}
+                    for s in FS.read(filepath).split('\n')]
+            sents['sbd'].extend([s for s in sents if s['words']])
+
+    if len(sents['sbd']) < 2:
+        raise ValueError('Files must be comprised of at least two sentences.')
+
+    filenames = [FS.split_path(f)[1] for f in files]
+    stats = {
+        'sents': len(sents['sbd']),
+        'tokens': sum(len(s['words']) for s in sents['sbd'])
+    }
 
     msg = Printer()
-
-    ext, filename, _ = FS.split_path(filepath)
-    filename += f'.{ext}'
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    if ext == 'conllu':
-        sents = FS.parse_conllu(filepath)
-    else:
-        nlp = spacy.blank('tr')
-        nlp.tokenizer = Tokenizer(nlp)
-        # sentences are seperated by new lines, tokenize sentences
-        sents = [{'words': [t.text for t in nlp(s) if t.text.strip()]}
-                 for s in FS.read(filepath).split('\n')]
-        sents = [s for s in sents if s['words']]
-
-    if not sents or len(sents) == 1:
-        raise ValueError(f'`{filename}` must be comprised of at least two sentences.')
+    msg.info(f'Parsing file(s) `{", ".join(filenames)}` ...')
+    msg.info(f'{stats["sents"]} sentences and {stats["tokens"]} tokens found.')
 
     # group data by 10 sentences
-    sents = list(batch_dataset(sents, batch_size=10))
+    sents['conllu'] = list(batch_dataset(sents['conllu'], batch_size=10))
+    sents['sbd'] = list(batch_dataset(sents['sbd'], batch_size=10))
 
-    gold, stats = [], {'sents': 0, 'tokens': 0}
-    for group in sents:
-        data = {'tokens': [], 'sbd': [], 'lemma': [], 'pos': []}
+    gold = {'conllu': [], 'sbd': []}
+    for group in sents['conllu']:
+        data = {'tokens': [], 'lemma': [], 'pos': []}
         for sent in group:
-            stats['sents'] += 1
-            stats['tokens'] += len(sent['words'])
+            data['tokens'].extend(sent['words'])
+            data['lemma'].extend(lower(l) for l in sent['lemmas'])
+            data['pos'].extend(sent['poses'])
+        gold['conllu'].append(data)
+    for group in sents['sbd']:
+        data = {'tokens': [], 'sbd': []}
+        for sent in group:
             data['tokens'].extend(sent['words'])
             data['sbd'].extend(['O']*len(sent['words']))
             # for last token of each sentence label `sbd` as `EOS`
             data['sbd'][-1] = 'EOS'
-            if 'lemmas' in sent:
-                data['lemma'].extend(lower(l) for l in sent['lemmas'])
-            if 'poses' in sent:
-                data['pos'].extend(sent['poses'])
         # for last token of each sentence group label `sbd` as `O`
         data['sbd'][-1] = 'O'
-        gold.append(data)
-
-    msg.info(f'Parsing file `{filename}` ...')
-    msg.info(f'{stats["sents"]} sentences and {stats["tokens"]} tokens found.')
+        gold['sbd'].append(data)
 
     pred = _predict(gold)
 
     msg.info('Calculating scores ...')
 
-    scores = {'nltk': {}, 'zemberek': {}, 'nlpTurk': {}}
+    scores = {'nlpTurk': {}, 'zemberek': {}, 'nltk': {}}
     for m, p in pred.items():
         # sbd scores
-        scores[m]['sbd'] = _score(gold, p, 'sbd')['sbd_per_type']['EOS']
+        scores[m]['sbd'] = _score(gold['sbd'], p['sbd'], 'sbd')['sbd_per_type']['EOS']
         # lemma scores
-        score = _score(gold, p, 'lemma')
+        score = _score(gold['conllu'], p['conllu'], 'lemma')
         scores[m]['lemma'] = score['lemma_acc'] if score else None
         # pos scores
-        score = _score(gold, p, 'pos')
+        score = _score(gold['conllu'], p['conllu'], 'pos')
         if score:
-            gold_labels = set(t for g in gold for t in g['pos'])
+            gold_labels = set(t for g in gold['conllu'] for t in g['pos'])
             avg = {k.replace('pos_', ''): v for k, v in score.items()
                    if k != 'pos_per_type'}
             score = {k: v for k, v in score['pos_per_type'].items() if k in gold_labels}
             score.update(avg)
         scores[m]['pos'] = score
 
-    FS.to_disk(_create_report(scores, filename, stats), output_path)
+    FS.to_disk(_create_report(scores, filenames, stats), output_path)
 
     msg.info(f'Benchmark report saved to `{Path(output_path).resolve()}`')
 
@@ -109,44 +123,51 @@ def _predict(gold: List[Dict[str, List[str]]]) -> Dict[str, List[Dict[str, List[
         Dict[str, List[Dict[str, List[str]]]]: Predictions.
     """
     msg = Printer()
-    predictions = {}
+    predictions = {k: {'conllu': [], 'sbd': []} for k in ('nlpTurk', 'zemberek', 'nltk')}
 
     # nlptTurk predictions
     msg.info('Executing nlpTurk predictions ...')
-    pred = []
-    for sents in gold:
-        data = {'tokens': [], 'sbd': [], 'lemma': [], 'pos': []}
+    for sents in gold['conllu']:
+        data = {'tokens': [], 'lemma': [], 'pos': []}
+        for token in nlpturk(' '.join(sents['tokens'])):
+            data['tokens'].append(token.text)
+            data['lemma'].append(token.lemma)
+            data['pos'].append(token.pos)
+        predictions['nlpTurk']['conllu'].append(data)
+    for sents in gold['sbd']:
+        data = {'tokens': [], 'sbd': []}
         for token in nlpturk(' '.join(sents['tokens'])):
             data['tokens'].append(token.text)
             data['sbd'].append('EOS' if token.is_sent_end else 'O')
-            data['lemma'].append(token.lemma)
-            data['pos'].append(token.pos)
         # for last token of each sentence group label `sbd` as `O`
         data['sbd'][-1] = 'O'
-        pred.append(data)
-    predictions['nlpTurk'] = pred
+        predictions['nlpTurk']['sbd'].append(data)
 
     # zemberek predictions
     msg.info('Executing zemberek predictions ...')
     zemberek = Zemberek()
-    pred = []
-    for sents in gold:
-        data = {'tokens': [], 'sbd': [], 'lemma': [], 'pos': []}
+    for sents in gold['conllu']:
+        data = {'tokens': [], 'lemma': [], 'pos': []}
+        for sent in zemberek.extract_sents(' '.join(sents['tokens'])):
+            for token in zemberek.extract_morphs(sent):
+                data['tokens'].append(token['token'])
+                data['lemma'].append(token['lemma'])
+                data['pos'].append(token['pos'])
+        predictions['zemberek']['conllu'].append(data)
+    for sents in gold['sbd']:
+        data = {'tokens': [], 'sbd': []}
         for sent in zemberek.extract_sents(' '.join(sents['tokens'])):
             for token in zemberek.extract_morphs(sent):
                 data['tokens'].append(token['token'])
                 data['sbd'].append('O')
-                data['lemma'].append(token['lemma'])
-                data['pos'].append(token['pos'])
             data['sbd'][-1] = 'EOS'
         # for last token of each sentence group label `sbd` as `O`
         data['sbd'][-1] = 'O'
-        pred.append(data)
-    predictions['zemberek'] = pred
+        predictions['zemberek']['sbd'].append(data)
 
     # nltk predictions
     msg.info('Executing NLTK predictions ...')
-    predictions['nltk'] = _nltk_tokenize(gold)
+    predictions['nltk']['sbd'].extend(_nltk_tokenize(gold['sbd']))
 
     return predictions
 
@@ -168,7 +189,7 @@ def _nltk_tokenize(gold: List[Dict[str, List[str]]]) -> List[Dict[str, List[str]
 
     pred = []
     for sents in gold:
-        data = {'tokens': [], 'sbd': [], 'lemma': [], 'pos': []}
+        data = {'tokens': [], 'sbd': []}
         for sent in tokenizer.tokenize(' '.join(sents['tokens'])):
             tokens = sent.split()
             data['tokens'].extend(tokens)
@@ -196,10 +217,10 @@ def _score(
     Returns:
         Dict[str, Any]: PRF and accuracy scores.
     """
-    def make_doc(content):
-        nlp = spacy.blank('tr')
-        nlp.tokenizer = Tokenizer(nlp)
+    nlp = spacy.blank('tr')
+    nlp.tokenizer = Tokenizer(nlp)
 
+    def make_doc(content):
         tokens, spans, idx = [], [], 0
         for token, label in content:
             tokens.append(token)
@@ -215,7 +236,7 @@ def _score(
         return doc.spans[span_key]
 
     # if `gold` or `pred` does not have labels, just return
-    if not gold[0][attr] or not pred[0][attr]:
+    if not gold or not pred:
         return
 
     gold = [[(t, l) for t, l in zip(s['tokens'], s[attr])] for s in gold]
@@ -243,12 +264,12 @@ def _score(
     return scores
 
 
-def _create_report(scores: Dict[str, Any], filename: str, stats: Dict[str, int]) -> str:
+def _create_report(scores: Dict[str, Any], filenames: str, stats: Dict[str, int]) -> str:
     """Creates benchmark report.
 
     Args:
         scores (Dict[str, Any]): PRF and accuracy scores per library.
-        filename (str): Benchmark file name.
+        filenames (str): Benchmark files.
         stats (Dict[str, int]): File statistics (# of sents, # of tokens).
 
     Returns:
@@ -257,7 +278,12 @@ def _create_report(scores: Dict[str, Any], filename: str, stats: Dict[str, int])
     report = [f"{'-'*60}\nBENCHMARK REPORT\n{'-'*60}\n"]
     report.append(f'Repository: https://github.com/nlpturk\n')
     report.append(f'Date:  {datetime.today().strftime("%d/%m/%Y")}')
-    report.append(f'File:  {filename}')
+    if len(filenames) > 1:
+        report.append(f'Files: {filenames[0]}')
+        for i in range(1, len(filenames)):
+            report.append(f'{" "*7}{filenames[i]}')
+    else:
+        report.append(f'File:  {filenames[0]}')
     report.append(f'Stats: {stats["sents"]} sentences, {stats["tokens"]} tokens')
 
     # sentence segmentation

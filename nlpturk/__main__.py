@@ -82,11 +82,12 @@ Commands:
   benchmark   Perform benchmarks.
             
               Required arguments:
-                --filepath     Path to the benchmark file. If file is in conllu format,
-                               benchmarks will be performed for sentence segmentation,  
-                               lemmatization and POS tagging. If file contains sentences
-                               seperated by newlines, benchmarks will be performed only 
-                               for sentence segmentation.
+                --data_path    Path to the file or directory of files. Multiple files 
+                               will be merged. If files are in conllu format, benchmarks  
+                               will be performed for sentence segmentation, lemmatization 
+                               and POS tagging. If files contains sentences seperated by 
+                               newlines, benchmarks will be performed only for sentence 
+                               segmentation.
                 --output_path  Output path to save benchmark report.
 
 Usage Examples: 
@@ -187,11 +188,11 @@ def cli():
             kwargs['use_gpu'] = True
         evaluate_model(args.model_path, args.filepath, args.output_path, **kwargs)
     elif args.COMMAND == 'benchmark':
-        required = [a for a in ('filepath', 'output_path')
+        required = [a for a in ('data_path', 'output_path')
                     if not hasattr(args, a) or not getattr(args, a)]
         if required:
             parser.error(E01.format(', '.join([f'--{r}' for r in required])))
-        run_benchmarks(args.filepath, args.output_path)
+        run_benchmarks(args.data_path, args.output_path)
 
 
 if __name__ == '__main__':
