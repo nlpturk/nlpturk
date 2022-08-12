@@ -278,13 +278,13 @@ def _create_report(scores: Dict[str, Any], filenames: str, stats: Dict[str, int]
     report = [f"{'-'*60}\nBENCHMARK REPORT\n{'-'*60}\n"]
     report.append(f'Repository: https://github.com/nlpturk\n')
     report.append(f'Date:  {datetime.today().strftime("%d/%m/%Y")}')
+    report.append(f'Stats: {stats["sents"]} sentences, {stats["tokens"]} tokens')
     if len(filenames) > 1:
         report.append(f'Files: {filenames[0]}')
         for i in range(1, len(filenames)):
             report.append(f'{" "*7}{filenames[i]}')
     else:
         report.append(f'File:  {filenames[0]}')
-    report.append(f'Stats: {stats["sents"]} sentences, {stats["tokens"]} tokens')
 
     # sentence segmentation
     report.append(f"\n\nSentence Segmentation\n{'-'*21}\n")
