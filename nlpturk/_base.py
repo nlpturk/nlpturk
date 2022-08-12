@@ -55,7 +55,7 @@ class _M(sys.modules[__name__].__class__):
             try:
                 model_path = Path(find_spec(pkg.__model__).origin).parent
             except AttributeError:
-                model_path = self._download(pkg.__model__)
+                model_path = self._download()
             self._nlp = spacy.load(model_path)
             self._nlp.tokenizer = Tokenizer(self._nlp)
 
