@@ -59,7 +59,15 @@ def make_sbd(
                                     scorer=scorer, neg_prefix=neg_prefix)
 
 
-def sbd_score(examples, **kwargs):
+def sbd_score(examples: Iterable[Example], **kwargs) -> Dict[str, float]:
+    """Returns PRF scores for token tags.
+
+    Args:
+        examples (Iterable[Example]): Examples to score.
+
+    Returns:
+        Dict[str, float]: Dictionary containing the PRF scores.
+    """
     micro_prf = PRFScore()
     for example in examples:
         gold_doc = example.reference
@@ -67,14 +75,16 @@ def sbd_score(examples, **kwargs):
         align = example.alignment
         gold_tags = set()
         for gold_i, token in enumerate(gold_doc):
-            gold_tags.add((gold_i, token._.sbd_tag))
+            if token._.sbd_tag_ == 'EOS':
+                gold_tags.add((gold_i, token._.sbd_tag))
         pred_tags = set()
         for token in pred_doc:
             if token.orth_.isspace():
                 continue
             if align.x2y.lengths[token.i] == 1:
                 gold_i = align.x2y[token.i][0]
-                pred_tags.add((gold_i, token._.sbd_tag))
+                if token._.sbd_tag_ == 'EOS':
+                    pred_tags.add((gold_i, token._.sbd_tag))
         micro_prf.score_set(pred_tags, gold_tags)
     return {"sbd_p": micro_prf.precision, "sbd_r": micro_prf.recall,
             "sbd_f": micro_prf.fscore}
