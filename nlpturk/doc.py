@@ -111,6 +111,22 @@ class Token:
         return self._token.is_stop
 
     @property
+    def vector(self):
+        """Vector representation of the token. Token vector is the mean of the 
+        subtoken vectors for transformer models. 
+
+        Returns:
+            numpy.ndarray[ndim=1, dtype='float32']: Token vector as 1D numpy array.
+        """
+        vector = self._token.vector
+        if not vector.size and hasattr(self._token.doc._, 'trf_data'):
+            trf_vector = []
+            for i in self._token.doc._.trf_data.align[self.i].data:
+                trf_vector.append(self._token.doc._.trf_data.tensors[0][0][i])
+            vector = np.mean(np.array(trf_vector), axis=0)
+        return vector
+
+    @property
     def text(self):
         """
         Returns:
@@ -279,6 +295,18 @@ class Sent:
         """
         return self._span.end
 
+    @property
+    def vector(self):
+        """Vector representation of the sentence as the mean of the token vectors.
+
+        Returns:
+            numpy.ndarray[ndim=1, dtype='float32']: Sentence vector as 1D numpy array.
+        """
+        vector = self._span.vector
+        if not vector.size and hasattr(self._span.doc._, 'trf_data'):
+            vector = sum(Token(t).vector for t in self._span) / len(self._span)
+        return vector
+
 
 class Document:
     """Class that encapsulates the spaCy Doc object. The spaCy Doc object is available 
@@ -345,3 +373,15 @@ class Document:
             str: The string representation of the document text. 
         """
         return ''.join(Token(t).text_with_ws for t in self._doc)
+
+    @property
+    def vector(self):
+        """Vector representation of the document as the mean of the token vectors.
+
+        Returns:
+            numpy.ndarray[ndim=1, dtype='float32']: Sentence vector as 1D numpy array.
+        """
+        vector = self._doc.vector
+        if not vector.size and hasattr(self._doc._, 'trf_data'):
+            vector = sum(Token(t).vector for t in self._doc) / len(self._doc)
+        return vector
