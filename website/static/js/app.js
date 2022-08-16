@@ -2,12 +2,34 @@
   "use strict";
 
   /**
+   * Shows loader animation.
+   */
+  const displayLoader = () => {
+    document.querySelector('#loader').style.display = 'flex';
+  };
+
+  /**
+   * Hides loader animation.
+   */
+  const hideLoader = () => {
+    document.querySelector('#loader').style.display = 'none';
+  };
+
+  /**
+   * Hide loader on window load.
+   */
+  window.addEventListener('load', (e) => {
+    hideLoader();
+  });
+
+  /**
    * Sends ajax post requests.
    * @param {String} url Request url
    * @param {Array} payload Request payload
    * @returns {Object} Response
    */
   const ajaxPost = async function (url, payload) {
+    displayLoader();
     return await fetch(url, {
       method: "POST",
       credentials: "same-origin",
@@ -18,6 +40,7 @@
       },
       body: JSON.stringify(payload)
     }).then(response => {
+      hideLoader();
       if (response.ok) return response.json();
       throw new Error(response.status);
     }).catch(error => {
