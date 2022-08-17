@@ -1,0 +1,157 @@
+------------------------------------------------------------
+BENCHMARK REPORT
+------------------------------------------------------------
+
+Repository: https://github.com/nlpturk
+
+Date:  17/08/2022
+Stats: 531 sentences, 4627 tokens
+File:  tr_atis-ud-test
+
+
+Sentence Segmentation
+---------------------
+
+               precision    recall  f1-score
+
+    nlpTurk        99.54     90.78     94.96
+    zemberek        0.00      0.00      0.00
+    nltk            0.00      0.00      0.00
+
+
+Lemmatization
+-------------
+
+                accuracy
+
+    nlpTurk        99.31
+    zemberek       92.54
+
+
+POS Tagging
+-----------
+
+  Micro Average
+  -------------
+
+               precision    recall  f1-score
+
+    nlpTurk        98.07     98.60     98.33
+    zemberek       62.46     62.44     62.45
+
+
+  ADJ [adjective]
+  ---------------
+
+               precision    recall  f1-score
+
+    nlpTurk        99.46     98.03     98.74
+    zemberek       91.67     74.78     82.36
+
+
+  ADP [adposition]
+  ----------------
+
+               precision    recall  f1-score
+
+    nlpTurk       100.00     98.26     99.12
+    zemberek       90.32     73.04     80.77
+
+
+  ADV [adverb]
+  ------------
+
+               precision    recall  f1-score
+
+    nlpTurk        98.29     97.73     98.01
+    zemberek       84.09     84.09     84.09
+
+
+  AUX [auxiliary]
+  ---------------
+
+               precision    recall  f1-score
+
+    nlpTurk       100.00    100.00    100.00
+    zemberek      100.00    100.00    100.00
+
+
+  CCONJ [coordinating conjunction]
+  --------------------------------
+
+               precision    recall  f1-score
+
+    nlpTurk        98.13    100.00     99.06
+    zemberek       80.17     92.38     85.84
+
+
+  DET [determiner]
+  ----------------
+
+               precision    recall  f1-score
+
+    nlpTurk        98.56     99.28     98.92
+    zemberek       96.50    100.00     98.22
+
+
+  INTJ [interjection]
+  -------------------
+
+               precision    recall  f1-score
+
+    nlpTurk       100.00    100.00    100.00
+    zemberek        0.00      0.00      0.00
+
+
+  NOUN [noun]
+  -----------
+
+               precision    recall  f1-score
+
+    nlpTurk        99.50     98.57     99.03
+    zemberek       46.68     96.22     62.86
+
+
+  NUM [numeral]
+  -------------
+
+               precision    recall  f1-score
+
+    nlpTurk        98.11    100.00     99.05
+    zemberek       81.97     96.15     88.50
+
+
+  PRON [pronoun]
+  --------------
+
+               precision    recall  f1-score
+
+    nlpTurk        91.00     97.85     94.30
+    zemberek       98.90     96.77     97.83
+
+
+  PROPN [proper noun]
+  -------------------
+
+               precision    recall  f1-score
+
+    nlpTurk        96.07     98.33     97.19
+    zemberek        0.00      0.00      0.00
+
+
+  PUNCT [punctuation]
+  -------------------
+
+               precision    recall  f1-score
+
+    nlpTurk       100.00    100.00    100.00
+    zemberek      100.00    100.00    100.00
+
+
+  VERB [verb]
+  -----------
+
+               precision    recall  f1-score
+
+    nlpTurk        99.07     99.77     99.42
+    zemberek       91.49     93.43     92.45
