@@ -1,8 +1,7 @@
-recursive-include nlpturk *
 include LICENSE
 include README.md
+recursive-include nlpturk *
 exclude nlpturk/__main__.py
-exclude nlpturk/training
-recursive-exclude */__pycache__ *
+recursive-exclude */training *
 recursive-exclude */assets *
 recursive-exclude */models *
