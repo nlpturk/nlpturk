@@ -18,6 +18,7 @@ keywords = ["nlp", "turkish"]
 dependencies = [
     "scikit-learn >= 1.1.0, < 1.2",
     "spacy-transformers >= 1.1.6, < 1.2",
+    "nlpturk-model @ https://github.com/nlpturk/nlpturk/releases/download/v0.0.1/nlpturk_model-0.0.1-py3-none-any.whl",
 ]
 requires-python = ">=3.8"
 
@@ -28,3 +29,6 @@ dev = ["pytest"]
 [project.urls]
 Homepage = "https://github.com/nlpturk/nlpturk"
 Repository = "https://github.com/nlpturk/nlpturk"
+
+[tool.setuptools]
+packages = ["nlpturk"]
