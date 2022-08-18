@@ -20,7 +20,7 @@ class _M(sys.modules[__name__].__class__):
     """Class that makes the nlpturk package a callable module.
     """
 
-    def __call__(self, text: str, trf: bool = False) -> Document:
+    def __call__(self, text: str) -> Document:
         """Makes the nlpturk package callable.
 
         Usage: 
@@ -42,10 +42,6 @@ class _M(sys.modules[__name__].__class__):
 
         Args:
             text (str): Text to be processed.
-            trf (bool, optional): Whether to use transformer model or not. Uses tok2vec model
-                as default. Transformer model is slightly more accurate with the cost of 
-                higher inference time. For model comparisons and usage details visit project's page.
-                https://github.com/nlpturk/nlpturk
 
         Returns:
             Document: Document object.
