@@ -4,19 +4,17 @@ nlpTurk is an open source Turkish NLP library consisting of machine learning bas
 
 ## Installation & Usage
 
-nlpTurk can be installed from [PyPI](https://pypi.org/project/nlpturk/).  
+nlpTurk can be installed from [PyPI](https://pypi.org/project/nlpturk/). nlpTurk offers a simple API to extract sentences, lemmas and POS tags. 
  
 ```bash
 pip install nlpturk
 ```
 
-nlpTurk offers a simple API to extract sentences, lemmas and POS tags.
-
 ```python
 import nlpturk
 
-metin = "Sosyal medya hayatımıza hızlı girdi.ama yazım kurallarına dikkat eden pek yok :)"
-doc = nlpturk(metin)
+text = "Sosyal medya hayatımıza hızlı girdi.ama yazım kurallarına dikkat eden pek yok :)"
+doc = nlpturk(text)
 
 # iterate over tokens
 for token in doc:
