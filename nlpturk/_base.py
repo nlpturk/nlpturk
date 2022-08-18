@@ -57,12 +57,12 @@ class _M(sys.modules[__name__].__class__):
 
         return Document(self._get_doc(text))
 
-    def _get_doc(self, text) -> Doc:
+    def _get_doc(self, text: str) -> Doc:
         """Removes whitespace tokens returned from Tokenizer and aligns character offsets
         of the tokens. 
 
         Args:
-            text (_type_): Raw text.
+            text (str): Text to be processed.
 
         Returns:
             Doc: spaCy Doc object.
@@ -101,11 +101,14 @@ class _M(sys.modules[__name__].__class__):
 
         return doc
 
-    def _download(self) -> None:
+    def _download(self) -> Path:
         """Downloads nlpTurk model.
 
         Args:
-            model (str): nlpTurk model name
+            model (str): nlpTurk model name.
+
+        Returns:
+            Path: Model path.
         """
         msg = Printer()
         msg.info(f'Model `{pkg.__model__}` not found! Downloading ...')
