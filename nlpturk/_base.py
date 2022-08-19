@@ -111,12 +111,11 @@ class _M(sys.modules[__name__].__class__):
             Path: Model path.
         """
         msg = Printer()
-        msg.info(f'Model `{pkg.__model__}` not found! Downloading ...')
+        msg.info(f'nlpTurk model not found! Downloading ...')
         cmd = [sys.executable, "-m", "pip", "install"] + [pkg.__download_url__]
         try:
             util.run_command(cmd)
             model_path = Path(find_spec(pkg.__model__).origin).parent
-            msg.good(f'Model `{pkg.__model__}` is downloaded successfully.')
             return model_path
         except:
             msg.fail('Connection to server is failed.')
