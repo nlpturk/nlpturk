@@ -169,8 +169,9 @@ class SentenceBoundaryDetector(Tagger):
             eos_token = None
             for j, token in enumerate(doc):
                 if eos_token:
-                    if (not eos_token.whitespace_ and not re.search(r'[^\W_]', token.text)) \
-                            or re.search(r'^[.?!:;)}\]]', token.text):
+                    if re.search(r'^[.?!:;)}\]]+$', token.text) or \
+                            not re.search(r'[\w({\[]', token.text) and \
+                            not re.search(r'^[.?!:;)}\]]+$', eos_token.text):
                         eos_token = token
                     else:
                         token.sent_start = True
