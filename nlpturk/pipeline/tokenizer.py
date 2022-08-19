@@ -31,9 +31,19 @@ class Tokenizer:
 
     def __call__(self, text):
         words, spaces = [], []
+        pattern = '[({\[<)}\]>«»“”„‟‹›❝❞❟❠❮❯〝〞〟＂"‘’‚‛❛❜]'
         for token in self.nlp(text):
+            # ensure whether the token is a valid url
             if token.like_url and not self._is_url(token.text):
-                tokens = token.text.replace('.', ' . ').split()
+                tokens = [t.text for t in self.nlp(token.text.replace('.', ' . '))
+                          if not t.is_space]
+                words.extend(tokens)
+                spaces.extend([False] * len(tokens))
+                spaces[-1] = bool(token.whitespace_)
+            # fix bracket and quote tokenization errors, e.g. `bu"(bir)` -> `bu " ( bir )`
+            elif re.search(fr'{pattern}', token.text):
+                tokens = [t.text for t in self.nlp(re.sub(fr'({pattern})', r' \1 ', token.text))
+                          if not t.is_space]
                 words.extend(tokens)
                 spaces.extend([False] * len(tokens))
                 spaces[-1] = bool(token.whitespace_)
