@@ -161,7 +161,7 @@ def cli():
             parser.error(E01.format(', '.join([f'--{r}' for r in required])))
         if hasattr(args, 'split_ratios') and isinstance(args.split_ratios, list):
             kwargs['split_ratios'] = [float(r) for r in args.split_ratios]
-        convert(args.data_path, args.output_path)
+        convert(args.data_path, args.output_path, **kwargs)
     elif args.COMMAND == 'train':
         required = [a for a in ('model_path', 'data_path')
                     if not hasattr(args, a) or not getattr(args, a)]
