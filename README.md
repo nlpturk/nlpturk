@@ -79,7 +79,7 @@ python -m nlpturk benchmark --data_path path/to/data --output_path path/to/outpu
 
 nlpTurk kütüphanesini kurulum yapmadan deneyimlemek için demo [websitesine](http://18.133.122.155) göz atabilirsiniz.
 
-[![home](https://github.com/nlpturk/nlpturk/blob/master/website/home.png)](http://18.133.122.155)
+![home](https://github.com/nlpturk/nlpturk/blob/master/website/home.png)
 
 ## Kaynaklar
 
