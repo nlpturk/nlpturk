@@ -4,7 +4,7 @@ BENCHMARK REPORT
 
 Repository: https://github.com/nlpturk
 
-Date:  17/08/2022
+Date:  19/08/2022
 Stats: 3147 sentences, 33411 tokens
 Files: tr_penn-ud-test
        tr_atis-ud-test
@@ -17,7 +17,7 @@ Sentence Segmentation
 
                precision    recall  f1-score
 
-    nlpTurk        97.84     95.83     96.82
+    nlpTurk        98.09     96.05     97.06
     zemberek       97.11     78.32     86.71
     nltk           96.41     77.75     86.08
 
