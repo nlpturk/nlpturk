@@ -4,11 +4,13 @@ nlpTurk is an open source Turkish NLP library consisting of machine learning bas
 
 ## Installation & Usage
 
-nlpTurk can be installed from [PyPI](https://pypi.org/project/nlpturk/). nlpTurk offers a simple API to extract sentences, lemmas and POS tags. 
+nlpTurk can be installed from [PyPI](https://pypi.org/project/nlpturk/). 
  
 ```bash
 pip install nlpturk
 ```
+
+nlpTurk offers a simple API to extract sentences, lemmas and POS tags.
 
 ```python
 import nlpturk
@@ -18,12 +20,12 @@ doc = nlpturk(text)
 
 # iterate over tokens
 for token in doc:
-    print(f"token: {token.text}, lemma: {token.lemma}, pos: {token.pos}, sent_end: {token.is_sent_end}")
+    print(f"token: {token.text}, lemma: {token.lemma}, pos: {token.pos}")
 
 """
 Prints:
-  token: Sosyal, lemma: sosyal, pos: ADJ, sent_end: False
-  token: medya, lemma: medya, pos: NOUN, sent_end: False
+  token: Sosyal, lemma: sosyal, pos: ADJ
+  token: medya, lemma: medya, pos: NOUN
   ...
 """
 
@@ -43,15 +45,15 @@ Prints:
 for i, sent in enumerate(doc.sents):
     print(f"sentence #{i+1}: {sent.text}")
     for token in sent:
-        print(f"  token: {token.text}, lemma: {token.lemma}, pos: {token.pos}, sent_start: {token.is_sent_start}")
+        print(f"  token: {token.text}, lemma: {token.lemma}, pos: {token.pos}")
 
 """
 Prints:
   sentence #1: Sosyal medya hayatımıza hızlı girdi.
-    token: Sosyal, lemma: sosyal, pos: ADJ, sent_start: True
+    token: Sosyal, lemma: sosyal, pos: ADJ
     ...
   sentence #2: ama yazım kurallarına dikkat eden pek yok :)
-    token: ama, lemma: ama, pos: CCONJ, sent_start: True
+    token: ama, lemma: ama, pos: CCONJ
     ...
 """
 ```
