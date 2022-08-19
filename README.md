@@ -64,7 +64,7 @@ The evaluation was performed on test dataset. Detailed evaluation and benchmarki
 
 |                        | accuracy | precision | recall | f1-score | 
 | :--------------------- | :------: | :-------: | :----: | :------: | 
-| **Sentence Segmenter** |    -     |   97.84   |  95.83 |  96.82   |  
+| **Sentence Segmenter** |    -     |   98.09   |  96.05 |  97.06   |  
 | **POS Tagger**         |    -     |   95.75   |  96.26 |  96.01   |   
 | **Lemmatizer**         |  96.87   |     -     |    -   |    -     |
 
