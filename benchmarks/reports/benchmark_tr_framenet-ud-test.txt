@@ -4,7 +4,7 @@ BENCHMARK REPORT
 
 Repository: https://github.com/nlpturk
 
-Date:  19/08/2022
+Date:  06/09/2022
 Stats: 190 sentences, 1411 tokens
 File:  tr_framenet-ud-test
 
@@ -14,7 +14,7 @@ Sentence Segmentation
 
                precision    recall  f1-score
 
-    nlpTurk       100.00    100.00    100.00
+    nlpTurk       100.00     99.42     99.71
     zemberek      100.00    100.00    100.00
     nltk          100.00     98.83     99.41
 
@@ -24,7 +24,7 @@ Lemmatization
 
                 accuracy
 
-    nlpTurk        96.88
+    nlpTurk        96.60
     zemberek       92.84
 
 
@@ -36,7 +36,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        96.24     96.24     96.24
+    nlpTurk        96.67     96.67     96.67
     zemberek       90.86     90.86     90.86
 
 
@@ -45,7 +45,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        91.96     89.57     90.75
+    nlpTurk        94.50     89.57     91.96
     zemberek       78.18     74.78     76.44
 
 
@@ -54,7 +54,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        90.00     96.43     93.10
+    nlpTurk        90.32    100.00     94.92
     zemberek       88.89     85.71     87.27
 
 
@@ -63,7 +63,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        91.60     89.34     90.46
+    nlpTurk        91.53     88.52     90.00
     zemberek       93.55     71.31     80.93
 
 
@@ -108,7 +108,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        98.15     96.57     97.35
+    nlpTurk        98.57     97.58     98.07
     zemberek       89.75     95.56     92.56
 
 
@@ -126,7 +126,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        95.12     84.78     89.66
+    nlpTurk        95.24     86.96     90.91
     zemberek       94.59     76.09     84.34
 
 
@@ -135,7 +135,7 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        93.75     93.75     93.75
+    nlpTurk       100.00    100.00    100.00
     zemberek        0.00      0.00      0.00
 
 
@@ -162,5 +162,5 @@ POS Tagging
 
                precision    recall  f1-score
 
-    nlpTurk        94.66    100.00     97.25
+    nlpTurk        94.64     99.60     97.05
     zemberek       94.57     98.39     96.44
